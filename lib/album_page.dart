@@ -163,13 +163,20 @@ class _AlbumPageState extends State<AlbumPage> {
           final marcado = _selecionados.contains(item.id);
           return GestureDetector(
             onLongPress: () => _alternar(item),
-            onTap: () => _selecionando
-                ? _alternar(item)
-                : Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) =>
-                            VisualizadorPage(itens: _itens, inicial: i))),
+            onTap: () async {
+              if (_selecionando) {
+                _alternar(item);
+                return;
+              }
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => VisualizadorPage(
+                          itens: _itens,
+                          inicial: i,
+                          albumId: widget.album.id)));
+              if (mounted) setState(() {});
+            },
             child: Stack(
               fit: StackFit.expand,
               children: [

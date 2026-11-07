@@ -3,12 +3,23 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
+import 'album_page.dart' show kAlbumEmEnvio;
+
 class VisualizadorPage extends StatefulWidget {
-  const VisualizadorPage({super.key, required this.itens, required this.inicial});
+  const VisualizadorPage(
+      {super.key,
+      required this.itens,
+      required this.inicial,
+      required this.albumId});
+
+  /// Lista do álbum: apagar daqui também a atualiza.
   final List<AssetEntity> itens;
   final int inicial;
+  final String albumId;
 
   @override
   State<VisualizadorPage> createState() => _VisualizadorPageState();
@@ -24,6 +35,48 @@ class _VisualizadorPageState extends State<VisualizadorPage> {
     super.dispose();
   }
 
+  Future<void> _enviar() async {
+    final arquivo = await widget.itens[_atual].originFile;
+    if (arquivo == null || !mounted) return;
+    // Se o Android fechar o app durante o envio, a tela inicial reabre o álbum.
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(kAlbumEmEnvio, widget.albumId);
+    await SharePlus.instance.share(ShareParams(files: [XFile(arquivo.path)]));
+    await prefs.remove(kAlbumEmEnvio);
+  }
+
+  Future<void> _apagar() async {
+    final item = widget.itens[_atual];
+    final tipo = item.type == AssetType.video ? 'vídeo' : 'foto';
+    final confirmou = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Apagar este $tipo?'),
+        content: const Text('Ele será removido do aparelho.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Apagar')),
+        ],
+      ),
+    );
+    if (confirmou != true) return;
+    final apagados = await PhotoManager.editor.deleteWithIds([item.id]);
+    if (!mounted || !apagados.contains(item.id)) return;
+    setState(() => widget.itens.removeWhere((e) => e.id == item.id));
+    if (widget.itens.isEmpty) {
+      Navigator.pop(context);
+      return;
+    }
+    if (_atual >= widget.itens.length) {
+      _atual = widget.itens.length - 1;
+      _pagina.jumpToPage(_atual);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,6 +85,16 @@ class _VisualizadorPageState extends State<VisualizadorPage> {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text('${_atual + 1} de ${widget.itens.length}'),
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.share_outlined),
+              tooltip: 'Enviar',
+              onPressed: _enviar),
+          IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: 'Apagar',
+              onPressed: _apagar),
+        ],
       ),
       body: PageView.builder(
         controller: _pagina,
@@ -40,7 +103,7 @@ class _VisualizadorPageState extends State<VisualizadorPage> {
         itemBuilder: (_, i) {
           final item = widget.itens[i];
           return item.type == AssetType.video
-              ? _Video(item: item)
+              ? _Video(key: ValueKey(item.id), item: item)
               : InteractiveViewer(
                   maxScale: 5,
                   child: Center(
@@ -54,7 +117,7 @@ class _VisualizadorPageState extends State<VisualizadorPage> {
 }
 
 class _Video extends StatefulWidget {
-  const _Video({required this.item});
+  const _Video({super.key, required this.item});
   final AssetEntity item;
 
   @override
