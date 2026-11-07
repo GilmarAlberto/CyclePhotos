@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'album_page.dart';
 import 'app_version.dart';
@@ -61,6 +62,20 @@ class _InicioPageState extends State<InicioPage> {
       _negado = false;
       _carregando = false;
     });
+    await _reabrirAlbumDoEnvio();
+  }
+
+  /// O app foi fechado enquanto compartilhava: volta ao álbum em que estava.
+  Future<void> _reabrirAlbumDoEnvio() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString(kAlbumEmEnvio);
+    if (id == null) return;
+    await prefs.remove(kAlbumEmEnvio);
+    final album = _albuns.where((a) => a.id == id).firstOrNull;
+    if (album == null || !mounted) return;
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (_) => AlbumPage(album: album)));
+    _carregar();
   }
 
   @override

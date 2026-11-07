@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 import 'visualizador_page.dart';
+
+const String kAlbumEmEnvio = 'album_em_envio';
 
 String duracaoTexto(Duration d) {
   final m = d.inMinutes.remainder(60).toString().padLeft(1, '0');
@@ -43,7 +46,11 @@ class _AlbumPageState extends State<AlbumPage> {
       if (arquivo != null) arquivos.add(XFile(arquivo.path));
     }
     if (arquivos.isEmpty || !mounted) return;
+    // Se o Android fechar o app durante o envio, a tela inicial reabre este álbum.
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(kAlbumEmEnvio, widget.album.id);
     await SharePlus.instance.share(ShareParams(files: arquivos));
+    await prefs.remove(kAlbumEmEnvio);
   }
 
   Future<void> _selecionarTudo() async {
