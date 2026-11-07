@@ -1,4 +1,4 @@
-# Galeria (protótipo)
+# CyclePhotos (protótipo)
 
 Protótipo de galeria de fotos e vídeos para **Android**, feito com Flutter.
 

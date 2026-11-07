@@ -12,7 +12,7 @@ class GaleriaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Galeria',
+      title: 'CyclePhotos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.teal, useMaterial3: true),
       darkTheme: ThemeData(
@@ -65,7 +65,7 @@ class _InicioPageState extends State<InicioPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Galeria')),
+      appBar: AppBar(title: const Text('CyclePhotos')),
       body: _corpo(),
     );
   }
