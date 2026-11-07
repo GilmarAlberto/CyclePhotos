@@ -3,6 +3,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 import 'album_page.dart';
+import 'app_version.dart';
 
 void main() => runApp(const GaleriaApp());
 
@@ -67,6 +68,14 @@ class _InicioPageState extends State<InicioPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('CyclePhotos')),
       body: _corpo(),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text('CyclePhotos v$kAppVersion',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall),
+        ),
+      ),
     );
   }
 
