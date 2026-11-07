@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
+import 'tamanho.dart';
 import 'visualizador_page.dart';
 
 const String kAlbumEmEnvio = 'album_em_envio';
@@ -30,7 +31,34 @@ class _AlbumPageState extends State<AlbumPage> {
   bool _carregando = false;
   bool _fim = false;
 
+  late Future<int> _totalAlbum;
+
   bool get _selecionando => _selecionados.isNotEmpty;
+
+  void _recalcularTotal() {
+    Tamanhos.esquecerAlbuns();
+    _totalAlbum = Tamanhos.doAlbum(widget.album);
+  }
+
+  Widget _subtitulo() {
+    if (_selecionando) {
+      final marcados = _itens.where((e) => _selecionados.contains(e.id));
+      return FutureBuilder<int>(
+        future: Tamanhos.dosItens(marcados),
+        builder: (_, snap) => Text(
+            snap.hasData ? formatarTamanho(snap.data!) : 'calculando…',
+            style: Theme.of(context).textTheme.bodySmall),
+      );
+    }
+    return FutureBuilder<int>(
+      future: _totalAlbum,
+      builder: (_, snap) => Text(
+          snap.hasData
+              ? 'Total: ${formatarTamanho(snap.data!)}'
+              : 'Calculando tamanho…',
+          style: Theme.of(context).textTheme.bodySmall),
+    );
+  }
 
   void _alternar(AssetEntity item) {
     setState(() {
@@ -91,6 +119,7 @@ class _AlbumPageState extends State<AlbumPage> {
     setState(() {
       _itens.removeWhere((e) => apagados.contains(e.id));
       _selecionados.clear();
+      _recalcularTotal();
     });
   }
 
@@ -100,6 +129,7 @@ class _AlbumPageState extends State<AlbumPage> {
     _rolagem.addListener(() {
       if (_rolagem.position.extentAfter < 600) _maisItens();
     });
+    _totalAlbum = Tamanhos.doAlbum(widget.album);
     _maisItens();
   }
 
@@ -131,9 +161,15 @@ class _AlbumPageState extends State<AlbumPage> {
                 icon: const Icon(Icons.close),
                 onPressed: () => setState(_selecionados.clear))
             : null,
-        title: Text(_selecionando
-            ? '${_selecionados.length} selecionado(s)'
-            : widget.album.name),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(_selecionando
+                ? '${_selecionados.length} selecionado(s)'
+                : widget.album.name),
+            _subtitulo(),
+          ],
+        ),
         actions: [
           if (_selecionando)
             IconButton(
@@ -175,7 +211,7 @@ class _AlbumPageState extends State<AlbumPage> {
                           itens: _itens,
                           inicial: i,
                           albumId: widget.album.id)));
-              if (mounted) setState(() {});
+              if (mounted) setState(_recalcularTotal);
             },
             child: Stack(
               fit: StackFit.expand,
@@ -196,6 +232,11 @@ class _AlbumPageState extends State<AlbumPage> {
                         marcado ? Icons.check_circle : Icons.circle_outlined,
                         color: Colors.white),
                   ),
+                Positioned(
+                  left: 4,
+                  bottom: 4,
+                  child: _SeloTamanho(item: item),
+                ),
                 if (item.type == AssetType.video)
                   Positioned(
                     right: 4,
@@ -222,6 +263,31 @@ class _AlbumPageState extends State<AlbumPage> {
           );
         },
       ),
+    );
+  }
+}
+
+class _SeloTamanho extends StatelessWidget {
+  const _SeloTamanho({required this.item});
+  final AssetEntity item;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<int>(
+      future: Tamanhos.doItem(item),
+      initialData: Tamanhos.emCache(item),
+      builder: (_, snap) {
+        if (!snap.hasData) return const SizedBox.shrink();
+        return DecoratedBox(
+          decoration: BoxDecoration(
+              color: Colors.black54, borderRadius: BorderRadius.circular(8)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            child: Text(formatarTamanho(snap.data!),
+                style: const TextStyle(color: Colors.white, fontSize: 11)),
+          ),
+        );
+      },
     );
   }
 }

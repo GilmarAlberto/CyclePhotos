@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'album_page.dart';
 import 'app_version.dart';
+import 'tamanho.dart';
 
 void main() => runApp(const GaleriaApp());
 
@@ -56,6 +57,7 @@ class _InicioPageState extends State<InicioPage> {
     }
     final albuns = await PhotoManager.getAssetPathList(type: RequestType.common);
     if (!mounted) return;
+    Tamanhos.esquecerAlbuns();
     setState(() {
       _versao++;
       _albuns = albuns;
@@ -158,9 +160,12 @@ class _CartaoAlbum extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(album.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-          FutureBuilder<int>(
-            future: album.assetCountAsync,
-            builder: (_, snap) => Text('${snap.data ?? 0} itens',
+          FutureBuilder<List<int>>(
+            future: Future.wait([album.assetCountAsync, Tamanhos.doAlbum(album)]),
+            builder: (_, snap) => Text(
+                snap.hasData
+                    ? '${snap.data![0]} itens · ${formatarTamanho(snap.data![1])}'
+                    : 'calculando…',
                 style: Theme.of(context).textTheme.bodySmall),
           ),
         ],

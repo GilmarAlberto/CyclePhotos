@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
 import 'album_page.dart' show kAlbumEmEnvio;
+import 'tamanho.dart';
 
 class VisualizadorPage extends StatefulWidget {
   const VisualizadorPage(
@@ -84,7 +85,13 @@ class _VisualizadorPageState extends State<VisualizadorPage> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: Text('${_atual + 1} de ${widget.itens.length}'),
+        title: FutureBuilder<int>(
+          future: Tamanhos.doItem(widget.itens[_atual]),
+          initialData: Tamanhos.emCache(widget.itens[_atual]),
+          builder: (_, snap) => Text(
+              '${_atual + 1} de ${widget.itens.length}'
+              '${snap.hasData ? ' · ${formatarTamanho(snap.data!)}' : ''}'),
+        ),
         actions: [
           IconButton(
               icon: const Icon(Icons.share_outlined),

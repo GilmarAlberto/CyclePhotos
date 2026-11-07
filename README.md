@@ -9,6 +9,7 @@ Protótipo de galeria de fotos e vídeos para **Android**, feito com Flutter.
 - Visualizador: passar de uma foto para outra, zoom com pinça, reprodução de vídeo com barra de progresso, **enviar e apagar** o item aberto
 - **Selecionar e apagar**: segurar uma foto liga a seleção, tocar marca ou desmarca, **Selecionar tudo** pega o álbum inteiro, a lixeira apaga depois de confirmar; a lista de álbuns se atualiza ao voltar
 - **Enviar**: compartilha os itens marcados por WhatsApp, e-mail e outros apps
+- **Tamanhos**: cada foto e vídeo mostra o tamanho; cada álbum mostra o total; ao selecionar, mostra o total dos marcados
 - Tema claro e escuro automático
 
 ## Ainda não incluído (a combinar)
@@ -28,4 +29,4 @@ Código analisado (`flutter analyze`, sem avisos), teste unitário da formataç�
 Ainda **não testado em aparelho físico**.
 
 ## Versão
-A versão fica em `lib/app_version.dart` (`kAppVersion`) e no `version:` do `pubspec.yaml`. **Toda mudança em `lib/` sobe a versão nos dois lugares**, no mesmo commit. Versão atual: **0.1.2**.
+A versão fica em `lib/app_version.dart` (`kAppVersion`) e no `version:` do `pubspec.yaml`. **Toda mudança em `lib/` sobe a versão nos dois lugares**, no mesmo commit. Versão atual: **0.1.3**.
