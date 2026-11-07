@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 import 'visualizador_page.dart';
@@ -32,6 +33,17 @@ class _AlbumPageState extends State<AlbumPage> {
     setState(() {
       if (!_selecionados.remove(item.id)) _selecionados.add(item.id);
     });
+  }
+
+  Future<void> _enviar() async {
+    final escolhidos = _itens.where((e) => _selecionados.contains(e.id));
+    final arquivos = <XFile>[];
+    for (final item in escolhidos) {
+      final arquivo = await item.originFile;
+      if (arquivo != null) arquivos.add(XFile(arquivo.path));
+    }
+    if (arquivos.isEmpty || !mounted) return;
+    await SharePlus.instance.share(ShareParams(files: arquivos));
   }
 
   Future<void> _selecionarTudo() async {
@@ -121,6 +133,11 @@ class _AlbumPageState extends State<AlbumPage> {
                 icon: const Icon(Icons.select_all),
                 tooltip: 'Selecionar tudo',
                 onPressed: _selecionarTudo),
+          if (_selecionando)
+            IconButton(
+                icon: const Icon(Icons.share_outlined),
+                tooltip: 'Enviar',
+                onPressed: _enviar),
           if (_selecionando)
             IconButton(
                 icon: const Icon(Icons.delete_outline),
