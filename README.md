@@ -7,11 +7,12 @@ Protótipo de galeria de fotos e vídeos para **Android**, feito com Flutter.
 - Lista os **álbuns** do aparelho, com capa e quantidade de itens
 - Grade de miniaturas por álbum, com carregamento sob demanda (rolagem infinita)
 - Visualizador: passar de uma foto para outra, zoom com pinça, reprodução de vídeo com barra de progresso
+- **Selecionar e apagar**: segurar uma foto liga a seleção, tocar marca ou desmarca, a lixeira apaga depois de confirmar
 - Tema claro e escuro automático
 
 ## Ainda não incluído (a combinar)
 - Anúncios (AdMob) e identidade visual própria
-- Favoritos, apagar, compartilhar, pastas privadas
+- Favoritos, compartilhar, pastas privadas
 - Publicação na Play Store
 
 ## Como rodar
