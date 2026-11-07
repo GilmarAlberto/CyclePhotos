@@ -35,6 +35,7 @@ class _InicioPageState extends State<InicioPage> {
   List<AssetPathEntity> _albuns = [];
   bool _negado = false;
   bool _carregando = true;
+  int _versao = 0;
 
   @override
   void initState() {
@@ -52,7 +53,9 @@ class _InicioPageState extends State<InicioPage> {
       return;
     }
     final albuns = await PhotoManager.getAssetPathList(type: RequestType.common);
+    if (!mounted) return;
     setState(() {
+      _versao++;
       _albuns = albuns;
       _negado = false;
       _carregando = false;
@@ -91,21 +94,28 @@ class _InicioPageState extends State<InicioPage> {
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12),
       itemCount: _albuns.length,
-      itemBuilder: (_, i) => _CartaoAlbum(album: _albuns[i]),
+      itemBuilder: (_, i) => _CartaoAlbum(
+          key: ValueKey('${_albuns[i].id}-$_versao'),
+          album: _albuns[i],
+          aoVoltar: _carregar),
     );
   }
 }
 
 class _CartaoAlbum extends StatelessWidget {
-  const _CartaoAlbum({required this.album});
+  const _CartaoAlbum({super.key, required this.album, required this.aoVoltar});
   final AssetPathEntity album;
+  final VoidCallback aoVoltar;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () => Navigator.push(context,
-          MaterialPageRoute(builder: (_) => AlbumPage(album: album))),
+      onTap: () async {
+        await Navigator.push(context,
+            MaterialPageRoute(builder: (_) => AlbumPage(album: album)));
+        aoVoltar();
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -147,6 +157,9 @@ class _Miniatura extends StatelessWidget {
       isOriginal: false,
       thumbnailSize: ThumbnailSize.square(tamanho),
       fit: BoxFit.cover,
+      errorBuilder: (_, _, _) => const ColoredBox(
+          color: Colors.black12,
+          child: Center(child: Icon(Icons.image_not_supported_outlined))),
     );
   }
 }

@@ -34,6 +34,20 @@ class _AlbumPageState extends State<AlbumPage> {
     });
   }
 
+  Future<void> _selecionarTudo() async {
+    final total = await widget.album.assetCountAsync;
+    if (_itens.length < total) {
+      final resto = await widget.album
+          .getAssetListRange(start: _itens.length, end: total);
+      if (!mounted) return;
+      _itens.addAll(resto);
+    }
+    setState(() {
+      _fim = true;
+      _selecionados.addAll(_itens.map((e) => e.id));
+    });
+  }
+
   Future<void> _apagar() async {
     final qtd = _selecionados.length;
     final confirmou = await showDialog<bool>(
@@ -104,6 +118,11 @@ class _AlbumPageState extends State<AlbumPage> {
         actions: [
           if (_selecionando)
             IconButton(
+                icon: const Icon(Icons.select_all),
+                tooltip: 'Selecionar tudo',
+                onPressed: _selecionarTudo),
+          if (_selecionando)
+            IconButton(
                 icon: const Icon(Icons.delete_outline),
                 tooltip: 'Apagar',
                 onPressed: _apagar),
@@ -133,7 +152,9 @@ class _AlbumPageState extends State<AlbumPage> {
                 AssetEntityImage(item,
                     isOriginal: false,
                     thumbnailSize: const ThumbnailSize.square(300),
-                    fit: BoxFit.cover),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) =>
+                        const ColoredBox(color: Colors.black12)),
                 if (marcado)
                   ColoredBox(color: Colors.teal.withValues(alpha: 0.45)),
                 if (_selecionando)
