@@ -1,4 +1,4 @@
-package br.com.cycledev.galeria_simples
+package br.com.cycledev.cyclephotos
 
 import io.flutter.embedding.android.FlutterActivity
 
