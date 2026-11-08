@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
+import 'nuvem.dart';
 import 'tamanho.dart';
 import 'visualizador_page.dart';
 
@@ -80,6 +81,95 @@ class _AlbumPageState extends State<AlbumPage> {
     await SharePlus.instance.share(ShareParams(files: arquivos));
     await prefs.remove(kAlbumEmEnvio);
   }
+
+  Future<void> _nuvem() async {
+    final modo = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Enviar para o Google Drive'),
+        content: const Text(
+            'Mover: envia, o app confere que chegou e só então apaga do celular.\n\n'
+            'Copiar: envia e deixa no celular.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+          OutlinedButton(
+              onPressed: () => Navigator.pop(ctx, 'copiar'),
+              child: const Text('COPIAR')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, 'mover'),
+              child: const Text('MOVER')),
+        ],
+      ),
+    );
+    if (modo == null || !mounted) return;
+    final escolhidos =
+        _itens.where((e) => _selecionados.contains(e.id)).toList();
+    final andamento = ValueNotifier<String>('Entrando na conta Google…');
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          content: ValueListenableBuilder<String>(
+            valueListenable: andamento,
+            builder: (_, t, _) => Row(children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 20),
+              Expanded(child: Text(t)),
+            ]),
+          ),
+        ),
+      ),
+    );
+    ResultadoNuvem? r;
+    Object? erro;
+    try {
+      r = await Nuvem.enviar(escolhidos,
+          progresso: (f, t) => andamento.value = 'Enviando $f de $t…');
+    } catch (e) {
+      erro = e;
+    }
+    if (!mounted) return;
+    Navigator.pop(context); // fecha o andamento
+    if (r == null) {
+      await _aviso('Não foi possível entrar no Google Drive. '
+          'Nada foi apagado.\n\n($erro)');
+      return;
+    }
+    var apagados = 0;
+    if (modo == 'mover' && r.enviadosConferidos.isNotEmpty) {
+      final feitos =
+          await PhotoManager.editor.deleteWithIds(r.enviadosConferidos);
+      apagados = feitos.length;
+      if (!mounted) return;
+      setState(() {
+        _itens.removeWhere((e) => feitos.contains(e.id));
+        _recalcularTotal();
+      });
+    }
+    setState(_selecionados.clear);
+    final n = r.enviadosConferidos.length;
+    var msg = '$n enviado(s) ao Drive (pasta "$kPastaNuvem") e conferido(s).';
+    if (modo == 'mover') msg += '\n$apagados apagado(s) do celular.';
+    if (r.falhas.isNotEmpty) {
+      msg += '\n\n${r.falhas.length} não puderam ser enviados e '
+          'continuam no celular.';
+    }
+    await _aviso(msg);
+  }
+
+  Future<void> _aviso(String texto) => showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          content: Text(texto),
+          actions: [
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx), child: const Text('OK'))
+          ],
+        ),
+      );
 
   Future<void> _selecionarTudo() async {
     final total = await widget.album.assetCountAsync;
@@ -176,6 +266,11 @@ class _AlbumPageState extends State<AlbumPage> {
                 icon: const Icon(Icons.select_all),
                 tooltip: 'Selecionar tudo',
                 onPressed: _selecionarTudo),
+          if (_selecionando)
+            IconButton(
+                icon: const Icon(Icons.cloud_upload_outlined),
+                tooltip: 'Enviar para o Drive',
+                onPressed: _nuvem),
           if (_selecionando)
             IconButton(
                 icon: const Icon(Icons.share_outlined),
