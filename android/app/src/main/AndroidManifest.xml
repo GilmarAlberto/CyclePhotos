@@ -7,10 +7,10 @@
         android:label="CyclePhotos"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- AdMob. TODO: trocar pelo App ID do CyclePhotos (conta cycledev26). Este é o de teste do Google. -->
+        <!-- AdMob: App ID do CyclePhotos (conta cycledev26). -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-1636142638953362~7835965169" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,13 +1,13 @@
 // ==============================
 // CyclePhotos — Anúncios (AdMob)
 //
-// Copiado do CycleCursos (lib/dados/anuncios.dart), que veio do CycleCal: o mesmo formato combinado com
-// o Gil — um banner 320x50 ancorado no rodapé, sempre visível, sem tela cheia.
-// Só Android, falha em silêncio, nunca bloqueia o boot. Antes de pedir anúncio
-// roda o consentimento UMP do Google (LGPD/GDPR).
+// Copiado do CycleCursos (lib/dados/anuncios.dart), que veio do CycleCal: o mesmo
+// formato combinado com o Gil — um banner 320x50 ancorado no rodapé, sempre
+// visível, sem tela cheia. Só Android, falha em silêncio, nunca bloqueia o boot.
+// Antes de pedir anúncio roda o consentimento UMP do Google (LGPD/GDPR).
 //
-// IDs (conta cycledev26): App ID ca-app-pub-1636142638953362~3246842296 (no
-// AndroidManifest.xml) e o bloco "CycleCursos rodape" abaixo. Em debug usa o ID
+// IDs (conta cycledev26): App ID ca-app-pub-1636142638953362~7835965169 (no
+// AndroidManifest.xml) e o bloco "CyclePhotos rodape" abaixo. Em debug usa o ID
 // de teste oficial do Google, para não gerar impressão real durante o
 // desenvolvimento.
 // ==============================
@@ -21,8 +21,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 // ── IDs ──────────────────────────────────────────────────────────────────
 
-// TODO: trocar pelo bloco "CyclePhotos rodape" criado no AdMob (conta cycledev26).
-const String _bannerReal = 'ca-app-pub-3940256099942544/6300978111';
+const String _bannerReal = 'ca-app-pub-1636142638953362/7501370354';
 const String _bannerTeste =
     'ca-app-pub-3940256099942544/6300978111'; // teste oficial do Google
 // APK de teste para o Gil instalar: --dart-define=ANUNCIO_TESTE=true força o banner de teste
