@@ -3,6 +3,7 @@
 Protótipo de galeria de fotos e vídeos para **Android**, feito com Flutter.
 
 ## O que já funciona
+- **Anúncios**: um banner 320x50 no rodapé (lista de álbuns e dentro do álbum), com consentimento do Google (UMP)
 - Pede permissão de acesso a fotos e vídeos (Android 13+ e versões anteriores)
 - Lista os **álbuns** do aparelho, com capa e quantidade de itens
 - Grade de miniaturas por álbum, com carregamento sob demanda (rolagem infinita)
@@ -13,7 +14,7 @@ Protótipo de galeria de fotos e vídeos para **Android**, feito com Flutter.
 - Tema claro e escuro automático
 
 ## Ainda não incluído (a combinar)
-- Anúncios (AdMob) e identidade visual própria
+- Identidade visual própria
 - Favoritos, pastas privadas
 - Publicação na Play Store
 
@@ -29,4 +30,4 @@ Código analisado (`flutter analyze`, sem avisos), teste unitário da formataç�
 Ainda **não testado em aparelho físico**.
 
 ## Versão
-A versão fica em `lib/app_version.dart` (`kAppVersion`) e no `version:` do `pubspec.yaml`. **Toda mudança em `lib/` sobe a versão nos dois lugares**, no mesmo commit. Versão atual: **0.2.1**.
+A versão fica em `lib/app_version.dart` (`kAppVersion`) e no `version:` do `pubspec.yaml`. **Toda mudança em `lib/` sobe a versão nos dois lugares**, no mesmo commit. Versão atual: **0.3.0**.

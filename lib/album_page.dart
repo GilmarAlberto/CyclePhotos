@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
+import 'anuncios.dart';
 import 'nuvem.dart';
 import 'tamanho.dart';
 import 'visualizador_page.dart';
@@ -283,6 +284,7 @@ class _AlbumPageState extends State<AlbumPage> {
                 onPressed: _apagar),
         ],
       ),
+      bottomNavigationBar: SafeArea(child: bannerSlot()),
       body: GridView.builder(
         controller: _rolagem,
         padding: const EdgeInsets.all(2),

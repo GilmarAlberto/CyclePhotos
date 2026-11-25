@@ -50,6 +50,8 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
+            // Ver proguard-rules.pro: mantém o WorkManager que o SDK de anúncios usa.
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }

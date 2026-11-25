@@ -6,10 +6,15 @@ import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'album_page.dart';
+import 'anuncios.dart';
 import 'app_version.dart';
 import 'tamanho.dart';
 
-void main() => runApp(const GaleriaApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  initAds(); // sem await: consentimento e SDK rodam em paralelo (ver anuncios.dart)
+  runApp(const GaleriaApp());
+}
 
 class GaleriaApp extends StatelessWidget {
   const GaleriaApp({super.key});
@@ -133,11 +138,17 @@ class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
       appBar: AppBar(title: const Text('CyclePhotos')),
       body: _corpo(),
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Text('CyclePhotos v$kAppVersion',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text('CyclePhotos v$kAppVersion',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall),
+            ),
+            bannerSlot(),
+          ],
         ),
       ),
     );
