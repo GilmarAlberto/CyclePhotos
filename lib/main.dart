@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
@@ -34,25 +36,70 @@ class InicioPage extends StatefulWidget {
   State<InicioPage> createState() => _InicioPageState();
 }
 
-class _InicioPageState extends State<InicioPage> {
+class _InicioPageState extends State<InicioPage> with WidgetsBindingObserver {
   List<AssetPathEntity> _albuns = [];
   bool _negado = false;
   bool _carregando = true;
   int _versao = 0;
+  bool _lendo = false;
+  Timer? _vigia;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _carregar();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _vigia?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _negado) _conferirPermissao();
+  }
+
+  /// Enquanto o acesso está negado, confere (sem abrir diálogo) se o usuário
+  /// acabou de permitir, no diálogo do sistema ou nas configurações.
+  void _vigiarPermissao() {
+    _vigia?.cancel();
+    _vigia = Timer.periodic(
+        const Duration(seconds: 1), (_) => _conferirPermissao());
+  }
+
+  Future<void> _conferirPermissao() async {
+    if (_lendo || !mounted) return;
+    final perm = await PhotoManager.getPermissionState(
+        requestOption: const PermissionRequestOption());
+    if (perm.hasAccess && mounted) {
+      _vigia?.cancel();
+      _carregar();
+    }
+  }
+
   Future<void> _carregar() async {
+    if (_lendo) return;
+    _lendo = true;
+    try {
+      await _ler();
+    } finally {
+      _lendo = false;
+    }
+  }
+
+  Future<void> _ler() async {
     final perm = await PhotoManager.requestPermissionExtend();
+    if (!mounted) return;
     if (!perm.hasAccess) {
       setState(() {
         _negado = true;
         _carregando = false;
       });
+      _vigiarPermissao();
       return;
     }
     final albuns = await PhotoManager.getAssetPathList(type: RequestType.common);
@@ -64,7 +111,7 @@ class _InicioPageState extends State<InicioPage> {
       _negado = false;
       _carregando = false;
     });
-    await _reabrirAlbumDoEnvio();
+    unawaited(_reabrirAlbumDoEnvio());
   }
 
   /// O app foi fechado enquanto compartilhava: volta ao álbum em que estava.
@@ -106,6 +153,8 @@ class _InicioPageState extends State<InicioPage> {
             const Text('Precisamos de acesso às suas fotos e vídeos.'),
             const SizedBox(height: 12),
             FilledButton(
+                onPressed: _carregar, child: const Text('Permitir acesso')),
+            TextButton(
                 onPressed: PhotoManager.openSetting,
                 child: const Text('Abrir configurações')),
           ],

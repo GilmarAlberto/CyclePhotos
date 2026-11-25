@@ -29,4 +29,4 @@ Código analisado (`flutter analyze`, sem avisos), teste unitário da formataç�
 Ainda **não testado em aparelho físico**.
 
 ## Versão
-A versão fica em `lib/app_version.dart` (`kAppVersion`) e no `version:` do `pubspec.yaml`. **Toda mudança em `lib/` sobe a versão nos dois lugares**, no mesmo commit. Versão atual: **0.1.3**.
+A versão fica em `lib/app_version.dart` (`kAppVersion`) e no `version:` do `pubspec.yaml`. **Toda mudança em `lib/` sobe a versão nos dois lugares**, no mesmo commit. Versão atual: **0.2.1**.
